@@ -22,12 +22,13 @@
 
 </head>
 <body>
-<script type="text/javascript">
+
+<script>
 
 var currentData = 'alan';
 var currentcsv = 'https://raw.githubusercontent.com/alanjoy396/Interactive-Visualization-HW6/master/hw6_data_alan.csv';
 
-function switchData(){
+function switchData() {
     if (currentData == 'alan'){
         currentData == 'katherine';
         currentcsv = 'https://raw.githubusercontent.com/alanjoy396/Interactive-Visualization-HW6/master/HW6_Data_Katherine.csv';
@@ -39,39 +40,42 @@ function switchData(){
 }
 
 // formatting stuff
-const margin = {top: 20, right: 10, bottom: 20, left: 10},
-    width = 960 - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom;
+var margin = {top: 20, right: 10, bottom: 20, left: 10};
+var width = 960 - margin.left - margin.right;
+var height = 500 - margin.top - margin.bottom;
 
-const svg = d3.select('body').append('svg')
+var svg = d3.select('body').append('svg')
     .attr('width', width + margin.left + margin.right)
-    .attr('height', height + margin.top + margin.bottom)
-  .append('g')
-    .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+    .attr('height', height + margin.top + margin.bottom);
+var g = svg.append('g').attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
-const x = d3.scaleBand().rangeRound([0, width]);
-const y = d3.scaleLinear().rangeRound([height, 0]);
-const z = d3.scaleOrdinal(d3.schemeCategory10)
+var x = d3.scaleBand().rangeRound([0, width]);
+var y = d3.scaleLinear().rangeRound([height, 0]);
+var z = d3.scaleOrdinal(d3.schemeCategory10);
 
-var xAxis = d3.axisBottom()
-	.scale(x)
-	.tickFormat(d3.timeFormat('%b'))
+var xAxis = d3.axisBottom().scale(x).tickFormat(d3.timeFormat('%b'));
 
 var yAxis = d3.axisRight()
 	.scale(y)
 
-
-
 d3.csv(currentcsv, function(data) {
-
     var parse = d3.timeParse("%m/%Y");
 
-    var keys = data.columns.slice(0)[1];
-    var stack = d3.stack().keys([keys]);
+    var keys = data.columns.slice(1);
 
-    var dataset = stack(data);
-    console.log(dataset);
+    z.domain(keys);
 
-});
+    g.append("g")
+        .selectAll("g")
+        .data(d3.stack().keys(keys) (data))
+        .enter().append("g")
+            .attr("fill", function(d) {return z(d.Course)})
+        .selectAll("rect")
+        .data(function(d) {return d;})
+        .enter().append("rect")
+            .attr("x", function(d) { return x(parse(d.data.Semester)); })
+            .attr("y", function(d) { return y(d[1]); })
+            .attr("height", function(d) { return y(d[0]) - y(d[1]); })
+            .attr("width", x.bandwidth())});
 
 </script>
