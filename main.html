@@ -5,32 +5,25 @@
   <title>Interactive Visualization HW6</title>
   <script src="https://d3js.org/d3.v4.min.js" charset="utf-8"></script>
 
-  <button onclick="loadData1()">Load Alan's Data</button>
-  <button onclick="loadData2()">Load Katherine's Data</button>
+  <button onclick="switchData()">Switch Dataset</button>
 
 </head>
 <body>
 <script type="text/javascript">
 
 var currentData = 'alan';
-var currentcsv = 'https://raw.githubusercontent.com/alanjoy396/Interactive-Visualization-HW6/master/hw6_data_alan.csv?token=ALEOWIYS2OKULXFDPZXEABC6J36BU';
+var currentcsv = 'https://raw.githubusercontent.com/alanjoy396/Interactive-Visualization-HW6/master/hw6_data_alan.csv';
+
 function switchData(){
     if (currentData == 'alan'){
         currentData == 'katherine';
-        currentcsv = 
+        currentcsv = 'https://raw.githubusercontent.com/alanjoy396/Interactive-Visualization-HW6/master/HW6_Data_Katherine.csv';
     }
     if (currentData == 'katherine'){
         currentData == 'alan';
-        currentcsv = 'https://raw.githubusercontent.com/alanjoy396/Interactive-Visualization-HW6/master/hw6_data_alan.csv?token=ALEOWIYS2OKULXFDPZXEABC6J36BU';
+        currentcsv = 'https://raw.githubusercontent.com/alanjoy396/Interactive-Visualization-HW6/master/hw6_data_alan.csv';
     }
-
 }
-
-d3.csv(currentcsv,
-        function(error, data) {
-    console.log(data);
-});
-
 
 var margin = {top: 20, right: 10, bottom: 20, left: 10},
     width = 960 - margin.left - margin.right,
@@ -41,6 +34,10 @@ var svg = d3.select('body').append('svg')
     .attr('height', height + margin.top + margin.bottom)
   .append('g')
     .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+var graph = d3.csv(currentcsv, function(data) {
+    console.log(data);
+});
 
 
 </script>
