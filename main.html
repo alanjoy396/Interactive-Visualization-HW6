@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Interactive Visualization HW6</title>
-  <script src="https://d3js.org/d3.v4.min.js" charset="utf-8"></script>
+  <script src="https://d3js.org/d3.v4.js" charset="utf-8"></script>
 
   <button onclick="switchData()">Switch Dataset</button>
 
@@ -35,9 +35,16 @@ var svg = d3.select('body').append('svg')
   .append('g')
     .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
-var graph = d3.csv(currentcsv, function(data) {
+d3.csv(currentcsv, function(data) {
     console.log(data);
 });
 
+var parse = d3.timeParse("%m/%Y");
+
+var keys = data.course.slice(1);
+var stack = d3.stack().keys(keys);
+
+var dataset = stack(data);
+console.log(dataset);
 
 </script>
