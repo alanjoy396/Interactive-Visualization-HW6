@@ -2,33 +2,67 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>d3.js learning</title>
+  <title>Interactive Visualization HW6</title>
   <script src="https://d3js.org/d3.v4.min.js" charset="utf-8"></script>
-  <script src="https://raw.githubusercontent.com/typeiii/jquery-csv/master/src/jquery.csv.js"></script>
-  <style type="text/css">
-  svg {
-    font: 10px sans-serif;
-    shape-rendering: crispEdges;
-  }
-
-  .axis path,
-  .axis line {
-    fill: none;
-    stroke: #000;
-  }
-
-  path.domain {
-    stroke: none;
-  }
-
-  .y .tick line {
-    stroke: #ddd;
-  }
-  </style>
-
+  <input type="file" id="csvFileInput" onchange="handleFiles(this.files)"
+          accept=".csv">
 </head>
 <body>
 <script type="text/javascript">
+
+function handleFiles(files) {
+  // Check for the various File API support.
+  if (window.FileReader) {
+      // FileReader are supported.
+      getAsText(files[0]);
+  } else {
+      alert('FileReader are not supported in this browser.');
+  }
+}
+
+function getAsText(fileToRead) {
+  var reader = new FileReader();
+  // Read file into memory as UTF-8
+  reader.readAsText(fileToRead);
+  // Handle errors load
+  reader.onload = loadHandler;
+  reader.onerror = errorHandler;
+}
+
+function loadHandler(event) {
+  var csv = event.target.result;
+  processData(csv);
+}
+
+function processData(csv) {
+    var allTextLines = csv.split(/\r\n|\n/);
+    var lines = [];
+    var keys = [];
+
+    for (var i=0; i<allTextLines.length; i++) {
+        var data = allTextLines[i].split(',');
+        if (i==0){
+            for (var j=0; j<data.length; j++) {
+                keys.push(data[j]);
+            }
+        }
+        else {
+            var tarr = {};
+            for (var j=0; j < data.length; j++) {
+                tarr[ keys[j] ] = data[j];
+            }
+            lines.push(tarr);
+        }
+    }
+  console.log(lines);
+}
+
+function errorHandler(evt) {
+  if(evt.target.error.name == "NotReadableError") {
+      alert("Canno't read file !");
+  }
+}
+
 
 var margin = {top: 20, right: 10, bottom: 20, left: 10},
     width = 960 - margin.left - margin.right,
@@ -40,10 +74,5 @@ var svg = d3.select('body').append('svg')
   .append('g')
     .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
-var data = [
-    {semester:"Fall 2016", courses=[
-        {category:"CSCI", grade:"A-", credits:"4", points:"14.68"},
-        {category:"ECON", grade:"C", credits:"4", points:"8"}
-    ]},
 
-]
+</script>
