@@ -25,15 +25,28 @@ function switchData(){
     }
 }
 
-var margin = {top: 20, right: 10, bottom: 20, left: 10},
+const margin = {top: 20, right: 10, bottom: 20, left: 10},
     width = 960 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
 
-var svg = d3.select('body').append('svg')
+const svg = d3.select('body').append('svg')
     .attr('width', width + margin.left + margin.right)
     .attr('height', height + margin.top + margin.bottom)
   .append('g')
     .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+const x = d3.scaleBand().rangeRound([0, width]);
+const y = d3.scaleLinear().rangeRound([height, 0]);
+const z = d3.scaleOrdinal(d3.schemeCategory10)
+
+var xAxis = d3.axisBottom()
+	.scale(x)
+	.tickFormat(d3.timeFormat('%b'))
+
+var yAxis = d3.axisRight()
+	.scale(y)
+
+
 
 d3.csv(currentcsv, function(data) {
     console.log(data);
