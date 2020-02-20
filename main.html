@@ -63,15 +63,15 @@ var yAxis = d3.axisRight()
 
 
 d3.csv(currentcsv, function(data) {
-    console.log(data);
+
+    var parse = d3.timeParse("%m/%Y");
+
+    var keys = data.columns.slice(0)[1];
+    var stack = d3.stack().keys([keys]);
+
+    var dataset = stack(data);
+    console.log(dataset);
+
 });
-
-var parse = d3.timeParse("%m/%Y");
-
-var keys = data.course.slice(1);
-var stack = d3.stack().keys(keys);
-
-var dataset = stack(data);
-console.log(dataset);
 
 </script>
