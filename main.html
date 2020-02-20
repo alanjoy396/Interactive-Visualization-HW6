@@ -4,64 +4,32 @@
   <meta charset="UTF-8" />
   <title>Interactive Visualization HW6</title>
   <script src="https://d3js.org/d3.v4.min.js" charset="utf-8"></script>
-  <input type="file" id="csvFileInput" onchange="handleFiles(this.files)"
-          accept=".csv">
+
+  <button onclick="loadData1()">Load Alan's Data</button>
+  <button onclick="loadData2()">Load Katherine's Data</button>
+
 </head>
 <body>
 <script type="text/javascript">
 
-function handleFiles(files) {
-  // Check for the various File API support.
-  if (window.FileReader) {
-      // FileReader are supported.
-      getAsText(files[0]);
-  } else {
-      alert('FileReader are not supported in this browser.');
-  }
-}
-
-function getAsText(fileToRead) {
-  var reader = new FileReader();
-  // Read file into memory as UTF-8
-  reader.readAsText(fileToRead);
-  // Handle errors load
-  reader.onload = loadHandler;
-  reader.onerror = errorHandler;
-}
-
-function loadHandler(event) {
-  var csv = event.target.result;
-  processData(csv);
-}
-
-function processData(csv) {
-    var allTextLines = csv.split(/\r\n|\n/);
-    var lines = [];
-    var keys = [];
-
-    for (var i=0; i<allTextLines.length; i++) {
-        var data = allTextLines[i].split(',');
-        if (i==0){
-            for (var j=0; j<data.length; j++) {
-                keys.push(data[j]);
-            }
-        }
-        else {
-            var tarr = {};
-            for (var j=0; j < data.length; j++) {
-                tarr[ keys[j] ] = data[j];
-            }
-            lines.push(tarr);
-        }
+var currentData = 'alan';
+var currentcsv = 'https://raw.githubusercontent.com/alanjoy396/Interactive-Visualization-HW6/master/hw6_data_alan.csv?token=ALEOWIYS2OKULXFDPZXEABC6J36BU';
+function switchData(){
+    if (currentData == 'alan'){
+        currentData == 'katherine';
+        currentcsv = 
     }
-  console.log(lines);
+    if (currentData == 'katherine'){
+        currentData == 'alan';
+        currentcsv = 'https://raw.githubusercontent.com/alanjoy396/Interactive-Visualization-HW6/master/hw6_data_alan.csv?token=ALEOWIYS2OKULXFDPZXEABC6J36BU';
+    }
+
 }
 
-function errorHandler(evt) {
-  if(evt.target.error.name == "NotReadableError") {
-      alert("Canno't read file !");
-  }
-}
+d3.csv(currentcsv,
+        function(error, data) {
+    console.log(data);
+});
 
 
 var margin = {top: 20, right: 10, bottom: 20, left: 10},
