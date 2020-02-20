@@ -40,42 +40,46 @@ function switchData() {
 }
 
 // formatting stuff
-var margin = {top: 20, right: 10, bottom: 20, left: 10};
+var margin = {top: 20, right: 20, bottom: 30, left: 40};
 var width = 960 - margin.left - margin.right;
 var height = 500 - margin.top - margin.bottom;
 
 var svg = d3.select('body').append('svg')
-    .attr('width', width + margin.left + margin.right)
-    .attr('height', height + margin.top + margin.bottom);
+    .attr('width', width)
+    .attr('height', height);
 var g = svg.append('g').attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
 var x = d3.scaleBand().rangeRound([0, width]);
 var y = d3.scaleLinear().rangeRound([height, 0]);
 var z = d3.scaleOrdinal(d3.schemeCategory10);
 
-var xAxis = d3.axisBottom().scale(x).tickFormat(d3.timeFormat('%b'));
-
-var yAxis = d3.axisRight()
-	.scale(y)
-
-d3.csv(currentcsv, function(data) {
-    var parse = d3.timeParse("%m/%Y");
+d3.csv(currentcsv, function(d, i, columns) {
+    for (i=1, t=0; i < columns.length; ++i)
+        t += d[columns[i]] = +d[columns[i]];
+    d.total = t;
+    return d;
+}, function (error, data) {
+    if (error) throw error;
 
     var keys = data.columns.slice(1);
-    console.log(keys);
+
+    data.sort(function(a, b) {return b.total - a.total; });
+    x.domain(data.map(function(d) {return d.semester_name; }));
+    y.domain([0, d3.max(data, function(d) {return d.total;} )] ).nice();
     z.domain(keys);
 
     g.append("g")
         .selectAll("g")
         .data(d3.stack().keys(keys) (data))
         .enter().append("g")
-            .attr("fill", function(d) {return z(d.Course)})
+            .attr("fill", function(d) {return z(d.key); })
         .selectAll("rect")
         .data(function(d) {return d;})
         .enter().append("rect")
-            .attr("x", function(d) { return x(parse(d.data.Semester)); })
+            .attr("x", function(d) { return x(d.data.semester_name); })
             .attr("y", function(d) { return y(d[1]); })
             .attr("height", function(d) { return y(d[0]) - y(d[1]); })
-            .attr("width", x.bandwidth())});
+            .attr("width", x.bandwidth());
+});
 
 </script>
