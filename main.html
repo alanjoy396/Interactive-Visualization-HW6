@@ -13,64 +13,69 @@
     }
 </style>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Interactive Visualization HW6</title>
-  <script src="https://d3js.org/d3.v4.js" charset="utf-8"></script>
 
-  <button onclick="switchData()">Switch Dataset</button>
+<head>
+    <meta charset="UTF-8" />
+    <title>Interactive Visualization HW6</title>
+    <script src="https://d3js.org/d3.v4.js" charset="utf-8"></script>
+
+    <button onclick="switchData()">Switch Dataset</button>
 
 </head>
+
 <body>
-<script type="text/javascript">
+    <script type="text/javascript">
+        var currentData = 'alan';
+        var currentcsv = 'https://raw.githubusercontent.com/alanjoy396/Interactive-Visualization-HW6/master/hw6_data_alan.csv';
 
-var currentData = 'alan';
-var currentcsv = 'https://raw.githubusercontent.com/alanjoy396/Interactive-Visualization-HW6/master/hw6_data_alan.csv';
+        function switchData() {
+            if (currentData == 'alan') {
+                currentData == 'katherine';
+                currentcsv = 'https://raw.githubusercontent.com/alanjoy396/Interactive-Visualization-HW6/master/HW6_Data_Katherine.csv';
+            }
+            if (currentData == 'katherine') {
+                currentData == 'alan';
+                currentcsv = 'https://raw.githubusercontent.com/alanjoy396/Interactive-Visualization-HW6/master/hw6_data_alan.csv';
+            }
+        }
 
-function switchData(){
-    if (currentData == 'alan'){
-        currentData == 'katherine';
-        currentcsv = 'https://raw.githubusercontent.com/alanjoy396/Interactive-Visualization-HW6/master/HW6_Data_Katherine.csv';
-    }
-    if (currentData == 'katherine'){
-        currentData == 'alan';
-        currentcsv = 'https://raw.githubusercontent.com/alanjoy396/Interactive-Visualization-HW6/master/hw6_data_alan.csv';
-    }
-}
+        const margin = {
+                top: 20,
+                right: 10,
+                bottom: 20,
+                left: 10
+            },
+            width = 960 - margin.left - margin.right,
+            height = 500 - margin.top - margin.bottom;
 
-const margin = {top: 20, right: 10, bottom: 20, left: 10},
-    width = 960 - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom;
+        const svg = d3.select('body').append('svg')
+            .attr('width', width + margin.left + margin.right)
+            .attr('height', height + margin.top + margin.bottom)
+            .append('g')
+            .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
-const svg = d3.select('body').append('svg')
-    .attr('width', width + margin.left + margin.right)
-    .attr('height', height + margin.top + margin.bottom)
-  .append('g')
-    .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+        const x = d3.scaleBand().rangeRound([0, width]);
+        const y = d3.scaleLinear().rangeRound([height, 0]);
+        const z = d3.scaleOrdinal(d3.schemeCategory10)
 
-const x = d3.scaleBand().rangeRound([0, width]);
-const y = d3.scaleLinear().rangeRound([height, 0]);
-const z = d3.scaleOrdinal(d3.schemeCategory10)
+        var xAxis = d3.axisBottom()
+            .scale(x)
+            .tickFormat(d3.timeFormat('%b'))
 
-var xAxis = d3.axisBottom()
-	.scale(x)
-	.tickFormat(d3.timeFormat('%b'))
-
-var yAxis = d3.axisRight()
-	.scale(y)
+        var yAxis = d3.axisRight()
+            .scale(y)
 
 
 
-d3.csv(currentcsv, function(data) {
-    console.log(data);
-});
+        d3.csv(currentcsv, function(data) {
+            console.log(data);
+        });
 
-var parse = d3.timeParse("%m/%Y");
+        var parse = d3.timeParse("%m/%Y");
 
-var keys = data.course.slice(1);
-var stack = d3.stack().keys(keys);
+        var keys = data.course.slice(1);
+        var stack = d3.stack().keys(keys);
 
-var dataset = stack(data);
-console.log(dataset);
-
-</script>
+        var dataset = stack(data);
+        console.log(dataset);
+    </script>
