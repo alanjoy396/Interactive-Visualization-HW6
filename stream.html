@@ -50,7 +50,6 @@
             .attr("transform", "translate(0, " + height + ")")
             .call(d3.axisBottom(x).ticks(7));
 
-
         // text label for the x axis
         svg.append("text")
           .attr("transform",
@@ -59,13 +58,10 @@
           .style("text-anchor", "middle")
           .text("Semester Number");
 
-
-
         // Add Y axis
         var y = d3.scaleLinear()
             .domain([-32, 32])
             .range([height, 64]);
-
 
         // text label for the y axis
         svg.append("text")
@@ -76,8 +72,7 @@
           .style("text-anchor", "middle")
           .text("Performance");
 
-
-
+          //had trouble using schema, manually input an appealing color scheme ala a color brewer reference site
         var color = d3.scaleOrdinal().domain(keys)
                         .range(["#8dd3c7","#ffffb3","#bebada","#fb8072","#80b1d3","#fdb462","#b3de69","#fccde5","#d9d9d9","#bc80bd","#ccebc5","#ffed6f"]);
 
@@ -86,7 +81,7 @@
             .offset(d3.stackOffsetSilhouette)
             .keys(keys)(data)
 
-        // Show the areas
+        // render the areas
         svg.selectAll("mylayers")
             .data(stackedData)
             .enter()
@@ -110,8 +105,7 @@
             var table = d3.select("#my_dataviz").append("table");
             var thead = table.append("thead").append("tr");
             var tbody = table.append("tbody");
-            thead
-                    .selectAll("th")
+            thead   .selectAll("th")
                     .data(['Category', 'Color'])
                     .enter()
                     .append("th")
