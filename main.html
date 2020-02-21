@@ -43,22 +43,24 @@ if (currentData == 'alan'){
     currentcsv = 'https://raw.githubusercontent.com/alanjoy396/Interactive-Visualization-HW6/master/hw6_data_alan_2.csv';
 }
 
+// format stuff
 var svg = d3.select("svg"),
     margin = {top: 20, right: 20, bottom: 30, left: 40},
     width = +svg.attr("width") - margin.left - margin.right,
     height = +svg.attr("height") - margin.top - margin.bottom,
     g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+// creates scales for x axis and y axis. "z axis" is a scale of color
 var x = d3.scaleBand()
     .rangeRound([0, width])
     .paddingInner(0.05)
     .align(0.1);
-
 var y = d3.scaleLinear()
     .rangeRound([height, 0]);
 var z = d3.scaleOrdinal(d3.schemeTableau10);
 
 d3.csv(currentcsv, function(d, i, columns) {
+    // gets totals to help with creating rectangles
     for (i=1, t=0; i < columns.length; ++i)
         t += d[columns[i]] = +d[columns[i]];
     d.total = t;
@@ -72,6 +74,7 @@ d3.csv(currentcsv, function(d, i, columns) {
     y.domain([0, d3.max(data, function(d) {return d.total;} )] ).nice();
     z.domain(keys);
 
+    // draws the rectangles and fills them in, then labels them
     g.append("g")
         .selectAll("g")
         .data(d3.stack().keys(keys) (data))
@@ -85,11 +88,13 @@ d3.csv(currentcsv, function(d, i, columns) {
             .attr("height", function(d) { return y(d[0]) - y(d[1]); })
             .attr("width", x.bandwidth());
 
+    // creates the bottom axis
     g.append("g")
         .attr("class", "axis")
         .attr("transform", "translate(0," + height + ")")
         .call(d3.axisBottom(x));
 
+    // creates the left axis
     g.append("g")
         .attr("class", "axis")
         .call(d3.axisLeft(y).ticks(null, "s"))
@@ -101,7 +106,7 @@ d3.csv(currentcsv, function(d, i, columns) {
         .attr("font-weight", "bold")
         .attr("text-anchor", "start");
 
-    // create legend
+    // create legend at bottom
     var table = d3.select("#main").append("table");
     var thead = table.append("thead").append("tr");
     var tbody = table.append("tbody");
@@ -116,6 +121,7 @@ d3.csv(currentcsv, function(d, i, columns) {
             .data(keys)
             .enter()
             .append("tr");
+    // this displays the categories on the left side
     var tcells = trows.selectAll("td.button")
             .data(function(t) {
                 return [t];
@@ -123,6 +129,7 @@ d3.csv(currentcsv, function(d, i, columns) {
             .enter()
             .append("td")
             .text(function(t){return t;})
+    // this creates the colored swatch boxes
     trows.selectAll("td.color")
             .data(function(t){return[t];})
             .enter()
@@ -132,7 +139,5 @@ d3.csv(currentcsv, function(d, i, columns) {
                 .enter();
 
 });
-
-
 
 </script>
