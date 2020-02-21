@@ -26,26 +26,21 @@
     <!-- load Color palette -->
     <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
 
-    <button onclick="switchData()">Switch Dataset</button>
-
 </head>
 <body>
 
 </body>
 <script>
 
+// change this to 'katherine' to try the other data set.
 var currentData = 'alan';
-var currentcsv = 'https://raw.githubusercontent.com/alanjoy396/Interactive-Visualization-HW6/master/hw6_data_alan_2.csv';
 
-function switchData() {
-    if (currentData == 'alan'){
-        currentData == 'katherine';
-        currentcsv = 'https://raw.githubusercontent.com/alanjoy396/Interactive-Visualization-HW6/master/HW6_Data_Katherine.csv';
-    }
-    if (currentData == 'katherine'){
-        currentData == 'alan';
-        currentcsv = 'https://raw.githubusercontent.com/alanjoy396/Interactive-Visualization-HW6/master/hw6_data_alan_2.csv';
-    }
+if (currentData == 'katherine'){
+    currentcsv = 'https://raw.githubusercontent.com/alanjoy396/Interactive-Visualization-HW6/master/HW6_Kat_Data_stream.csv';
+}
+if (currentData == 'alan'){
+    currentData == 'alan';
+    currentcsv = 'https://raw.githubusercontent.com/alanjoy396/Interactive-Visualization-HW6/master/hw6_data_alan_2.csv';
 }
 
 var svg = d3.select("svg"),
@@ -106,26 +101,38 @@ d3.csv(currentcsv, function(d, i, columns) {
         .attr("font-weight", "bold")
         .attr("text-anchor", "start");
 
-    var legend = g.append("g")
-        .attr("font-family", "sans-serif")
-        .attr("font-size", 10)
-        .attr("text-anchor", "end")
-      .selectAll("g")
-      .data(keys.slice().reverse())
-      .enter().append("g")
-        .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+    // create legend
+    var table = d3.select("#main").append("table");
+    var thead = table.append("thead").append("tr");
+    var tbody = table.append("tbody");
+    thead
+            .selectAll("th")
+            .data(['Category', 'Color'])
+            .enter()
+            .append("th")
+            .text(function(t) {return t;});
+    var trows = tbody
+            .selectAll("tr")
+            .data(keys)
+            .enter()
+            .append("tr");
+    var tcells = trows.selectAll("td.button")
+            .data(function(t) {
+                return [t];
+            })
+            .enter()
+            .append("td")
+            .text(function(t){return t;})
+    trows.selectAll("td.color")
+            .data(function(t){return[t];})
+            .enter()
+                .append("td")
+                .attr("class", "swatch")
+                .style("background-color", function(t){ return(z(t));})
+                .enter();
 
-    legend.append("rect")
-        .attr("x", width - 19)
-        .attr("width", 19)
-        .attr("height", 19)
-        .attr("fill", z);
-
-    legend.append("text")
-        .attr("x", width - 24)
-        .attr("y", 9.5)
-        .attr("dy", "0.32em")
-        .text(function(d) { return d; });
 });
+
+
 
 </script>
