@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<!-- Load d3.js -->
+<script src="https://d3js.org/d3.v4.js"></script>
+
+<!-- creates a visualization to be populated with data -->
+<div id="my_dataviz"></div>
+<!-- stylize table & set bubble stroke width-->
+<style>
+    body {
+        font-family: 'Helvetica', 'Arial', sans-serif;
+    }
+</style>
+
+<script>
+    // set the dimensions of the graph
+    var margin = {
+            top: 20,
+            right: 30,
+            bottom: 50,
+            left: 60
+        },
+        width = 960- margin.left - margin.right,
+        height = 540 - margin.top - margin.bottom;
+
+    // create and display an svg on the page
+    var svg = d3.select("#my_dataviz")
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform",
+            "translate(" + margin.left + "," + margin.top + ")");
+
+    // Read data from github repo
+    d3.csv("https://raw.githubusercontent.com/alanjoy396/Interactive-Visualization-HW6/master/HW6_Kat_Data_Stream.csv", function(data) {
+
+        // List of semsters, header of the csv file
+        var keys = data.columns.slice(2)
+
+        // Add X axis
+        var x = d3.scaleLinear()
+            .domain(d3.extent(data, function(d) {
+                return d.semester;
+            }))
+            .range([0, width]);
+        console.log(height);
+        svg.append("g")
+            .attr("transform", "translate(0, " + height + ")")
+            .call(d3.axisBottom(x).ticks(7));
+
+
+        // text label for the x axis
+        svg.append("text")
+          .attr("transform",
+                "translate(" + (width/2) + " ," +
+                               (height + margin.top + 20) + ")")
+          .style("text-anchor", "middle")
+          .text("Semester Number");
+
+
+
+        // Add Y axis
+        var y = d3.scaleLinear()
+            .domain([-32, 32])
+            .range([height, 64]);
+
+
+        // text label for the y axis
+        svg.append("text")
+          .attr("transform", "rotate(-90)")
+          .attr("y", 0 - margin.left)
+          .attr("x",0 - (height / 2))
+          .attr("dy", "1em")
+          .style("text-anchor", "middle")
+          .text("Performance");
+
+
+
+        var color = d3.scaleOrdinal().domain(keys)
+                        .range(["#8dd3c7","#ffffb3","#bebada","#fb8072","#80b1d3","#fdb462","#b3de69","#fccde5","#d9d9d9","#bc80bd","#ccebc5","#ffed6f"]);
+
+        //stack the data
+        var stackedData = d3.stack()
+            .offset(d3.stackOffsetSilhouette)
+            .keys(keys)(data)
+
+        // Show the areas
+        svg.selectAll("mylayers")
+            .data(stackedData)
+            .enter()
+            .append("path")
+            .style("fill", function(d) {
+                return color(d.key);
+            })
+            .attr("d", d3.area()
+                .x(function(d) {
+                    return x(d.data.semester);
+                })
+                .y0(function(d) {
+                    return y(d[0]);
+                })
+                .y1(function(d) {
+                    return y(d[1]);
+                })
+            )
+
+
+            var table = d3.select("#my_dataviz").append("table");
+            var thead = table.append("thead").append("tr");
+            var tbody = table.append("tbody");
+            thead
+                    .selectAll("th")
+                    .data(['Category', 'Color'])
+                    .enter()
+                    .append("th")
+                    .text(function(t) {return t;});
+            var trows = tbody
+                    .selectAll("tr")
+                    .data(keys)
+                    .enter()
+                    .append("tr");
+            var tcells = trows.selectAll("td.button")
+                    .data(function(t) {
+                        return [t];
+                    })
+                    .enter()
+                    .append("td")
+                    .text(function(t){return t;})
+            trows.selectAll("td.color")
+                    .data(function(t){return[t];})
+                    .enter()
+                        .append("td")
+                        .attr("class", "swatch")
+                        .style("background-color", function(t){ return(color(t));})
+                        .enter();
+    })
+</script>
