@@ -12,68 +12,127 @@
         display: none;
     }
 </style>
+<div id="main">
+    <svg width="960" height="500"></svg>
+</div>
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
     <title>Interactive Visualization HW6</title>
+
+    <!-- load D3 -->
     <script src="https://d3js.org/d3.v4.js" charset="utf-8"></script>
 
-    <button onclick="switchData()">Switch Dataset</button>
+    <!-- load Color palette -->
+    <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
 
 </head>
 <body>
-    <script type="text/javascript">
-        var currentData = 'alan';
-        var currentcsv = 'https://raw.githubusercontent.com/alanjoy396/Interactive-Visualization-HW6/master/hw6_data_alan.csv';
 
-        function switchData() {
-            if (currentData == 'alan') {
-                currentData == 'katherine';
-                currentcsv = 'https://raw.githubusercontent.com/alanjoy396/Interactive-Visualization-HW6/master/HW6_Data_Katherine.csv';
-            }
-            if (currentData == 'katherine') {
-                currentData == 'alan';
-                currentcsv = 'https://raw.githubusercontent.com/alanjoy396/Interactive-Visualization-HW6/master/hw6_data_alan.csv';
-            }
-        }
+</body>
+<script>
 
-        const margin = {
-                top: 20,
-                right: 10,
-                bottom: 20,
-                left: 10
-            },
-            width = 960 - margin.left - margin.right,
-            height = 500 - margin.top - margin.bottom;
+// change this to 'katherine' to try the other data set.
+var currentData = 'alan';
 
-        const svg = d3.select('body').append('svg')
-            .attr('width', width + margin.left + margin.right)
-            .attr('height', height + margin.top + margin.bottom)
-            .append('g')
-            .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+if (currentData == 'katherine'){
+    currentcsv = 'https://raw.githubusercontent.com/alanjoy396/Interactive-Visualization-HW6/master/HW6_Kat_Data_stream.csv';
+}
+if (currentData == 'alan'){
+    currentData == 'alan';
+    currentcsv = 'https://raw.githubusercontent.com/alanjoy396/Interactive-Visualization-HW6/master/hw6_data_alan_2.csv';
+}
 
-        const x = d3.scaleBand().rangeRound([0, width]);
-        const y = d3.scaleLinear().rangeRound([height, 0]);
-        const z = d3.scaleOrdinal(d3.schemeCategory10)
+var svg = d3.select("svg"),
+    margin = {top: 20, right: 20, bottom: 30, left: 40},
+    width = +svg.attr("width") - margin.left - margin.right,
+    height = +svg.attr("height") - margin.top - margin.bottom,
+    g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-        var xAxis = d3.axisBottom()
-            .scale(x)
-            .tickFormat(d3.timeFormat('%b'))
+var x = d3.scaleBand()
+    .rangeRound([0, width])
+    .paddingInner(0.05)
+    .align(0.1);
 
-        var yAxis = d3.axisRight()
-            .scale(y)
+var y = d3.scaleLinear()
+    .rangeRound([height, 0]);
+var z = d3.scaleOrdinal(d3.schemeTableau10);
+
+d3.csv(currentcsv, function(d, i, columns) {
+    for (i=1, t=0; i < columns.length; ++i)
+        t += d[columns[i]] = +d[columns[i]];
+    d.total = t;
+    return d;
+}, function (error, data) {
+    if (error) throw error;
+
+    var keys = data.columns.slice(1);
+
+    x.domain(data.map(function(d) {return d.semester_name; }));
+    y.domain([0, d3.max(data, function(d) {return d.total;} )] ).nice();
+    z.domain(keys);
+
+    g.append("g")
+        .selectAll("g")
+        .data(d3.stack().keys(keys) (data))
+        .enter().append("g")
+            .attr("fill", function(d) {return z(d.key); })
+        .selectAll("rect")
+        .data(function(d) {return d;})
+        .enter().append("rect")
+            .attr("x", function(d) { return x(d.data.semester_name); })
+            .attr("y", function(d) { return y(d[1]); })
+            .attr("height", function(d) { return y(d[0]) - y(d[1]); })
+            .attr("width", x.bandwidth());
+
+    g.append("g")
+        .attr("class", "axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(x));
+
+    g.append("g")
+        .attr("class", "axis")
+        .call(d3.axisLeft(y).ticks(null, "s"))
+      .append("text")
+        .attr("x", 2)
+        .attr("y", y(y.ticks().pop()) + 0.5)
+        .attr("dy", "0.32em")
+        .attr("fill", "#000")
+        .attr("font-weight", "bold")
+        .attr("text-anchor", "start");
+
+    // create legend
+    var table = d3.select("#main").append("table");
+    var thead = table.append("thead").append("tr");
+    var tbody = table.append("tbody");
+    thead
+            .selectAll("th")
+            .data(['Category', 'Color'])
+            .enter()
+            .append("th")
+            .text(function(t) {return t;});
+    var trows = tbody
+            .selectAll("tr")
+            .data(keys)
+            .enter()
+            .append("tr");
+    var tcells = trows.selectAll("td.button")
+            .data(function(t) {
+                return [t];
+            })
+            .enter()
+            .append("td")
+            .text(function(t){return t;})
+    trows.selectAll("td.color")
+            .data(function(t){return[t];})
+            .enter()
+                .append("td")
+                .attr("class", "swatch")
+                .style("background-color", function(t){ return(z(t));})
+                .enter();
+
+});
 
 
 
-        d3.csv(currentcsv, function(data) {
-            console.log(data);
-        });
-
-        var parse = d3.timeParse("%m/%Y");
-
-        var keys = data.course.slice(1);
-        var stack = d3.stack().keys(keys);
-
-        var dataset = stack(data);
-        console.log(dataset);
-    </script>
+</script>
